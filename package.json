@@ -23,12 +23,14 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "style-loader": "^1.2.1",
-    "url-loader": "^4.1.0",
+    "url-loader": "2.3.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@types/cesium": "^1.67.12",
+    "antd": "^4.6.5",
     "cesium-tdt": "^1.1.0"
   }
 }

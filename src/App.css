@@ -1,0 +1,7 @@
+/* @import '~antd/dist/antd.css'; */
+
+/* 隐藏Cesium版权信息 */
+.cesium-widget-credits {
+    display: none !important;
+    visibility: hidden !important;
+}

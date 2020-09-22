@@ -65,6 +65,17 @@ module.exports = {
             {
                 test: /\.(png|gif|jpg|jpeg|svg|xml|json)$/,
                 use: [ 'url-loader' ]
+            }, 
+            {
+                test: /\.(bmp)$/,
+                loader: 'file-loader',
+                options: {
+                    esModule: false,
+                    name:'[name].[ext]',
+                    outputPath: 'Assets/myApp/Images/',
+                    // 配置静态资源的引用路径。publicPath是打包后的 css 引用打包后的 图片的路径 /fonts/是绝对路径  fonts/是相对路径
+                    publicPath:'Assets/myApp/Images/',
+                },
             }
         ]
     },
