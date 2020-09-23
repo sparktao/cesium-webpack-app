@@ -4,8 +4,7 @@ import './layer-manager.css'
 import { Tree } from 'antd'
 import {
     loadServerTypeMap,
-    deleteServerTypeMap,
-    isLayerDataSource
+    deleteServerTypeMap
 } from './layerControl'
 import {CloseSquareOutlined} from '@ant-design/icons'
 import * as TDT from '../../js/tdt_metadata'
@@ -80,7 +79,24 @@ const treeData = [
                 IsWebMercatorTilingScheme:true,//是否创建摩卡托投影坐标系,默认是地理坐标系
                 type: 8,
                 checked: false,
-                other: '94.0107, -8.81, 147.105, 29.332'
+                other: [94.0107, -8.81, 147.105, 29.332]
+            },
+        ]
+    },
+    {
+        title: '热力图',
+        key: '0-4',
+        children: [                
+            {
+                title: '热力图1',
+                key: '0-4-1',
+                layerurl: "./Assets/myApp/data/data.json",
+                layerid: "NAD_RLT",
+                layerIndex: 50,
+                IsWebMercatorTilingScheme:true,//是否创建摩卡托投影坐标系,默认是地理坐标系
+                type: 9,
+                checked: false,
+                other: [120.106188593, 21.9705713974, 121.951243931, 25.2954588893]
             },
         ]
     }
@@ -148,7 +164,7 @@ export default function LayerManager(props) {
             else { //如果是文件夹节点
                 e.node.children.map(node => {
                     // 先全部清空图层
-                    deleteServerTypeMap(viewer, node.key, isLayerDataSource(node.type));                                       
+                    deleteServerTypeMap(viewer, node.key, node.type);                                       
                     // 再逐个添加图层 
                     loadServerTypeMap(viewer, node.key, node.type, node.layerurl, node.layerid, node.proxyUrl, node.IsWebMercatorTilingScheme,node.layerIndex, node.other);
                 });
@@ -157,12 +173,12 @@ export default function LayerManager(props) {
         else if(e.checked === false) {
             // 如果是枝节点
             if(e.node.layerurl) {
-                deleteServerTypeMap(viewer, e.node.key, isLayerDataSource(e.node.type));              
+                deleteServerTypeMap(viewer, e.node.key, e.node.type);              
             }
             else {
                 // 删除树节点下面的所有子节点图层
                 e.node.children.map(node => {
-                    deleteServerTypeMap(viewer, node.key, isLayerDataSource(e.node.type));
+                    deleteServerTypeMap(viewer, node.key, e.node.type);
                 });
             }
         }

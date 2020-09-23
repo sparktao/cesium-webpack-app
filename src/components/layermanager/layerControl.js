@@ -1,32 +1,20 @@
 import * as Cesium from 'cesium/Cesium'
+import getCesiumHeat from 'cesiumjs-heat'
 
 // 记录所有图层数据
 let LayerManager = {
-    layer3DList: []
+    layer3DList: [],
+    heat: null
 };
-
-function isLayerDataSource(type) {
-    if(type === 6) {
-        return true;
-    }
-    return false;
-}
 
 /**
  * 删除指定ID的图层
  */
-function deleteServerTypeMap(cesiumViewer, id, isDataSource=false){
-    if(!isDataSource) {
-        var layers = cesiumViewer.scene.imageryLayers;
-        var layerDatas = LayerManager.layer3DList;
-        for(var i=0; i<layerDatas.length && layerDatas.length > 0; i++){
-            if(layerDatas[i].id === id){
-                layers.remove(layerDatas[i].layer);
-                LayerManager.layer3DList = layerDatas.filter(l => l.id !== id);
-            }
-        }
+function deleteServerTypeMap(cesiumViewer, id, type){
+    if(type === 9) { // 如果是热力图
+        setTimeout(() => LayerManager.heat.destory(), 500)
     }
-    else {
+    else if(type === 6){ // 如果是kml数据
         var len = cesiumViewer.dataSources.length;
         if(len > 0){
             for(var i=0; i<len; i++){
@@ -34,6 +22,16 @@ function deleteServerTypeMap(cesiumViewer, id, isDataSource=false){
                 if(dataSource._name && dataSource._name === id){
                     cesiumViewer.dataSources.remove(dataSource);
                 }
+            }
+        }
+    }
+    else { //如果是其它图层
+        var layers = cesiumViewer.scene.imageryLayers;
+        var layerDatas = LayerManager.layer3DList;
+        for(var i=0; i<layerDatas.length && layerDatas.length > 0; i++){
+            if(layerDatas[i].id === id){
+                layers.remove(layerDatas[i].layer);
+                LayerManager.layer3DList = layerDatas.filter(l => l.id !== id);
             }
         }
     }
@@ -144,13 +142,38 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
                 cesium.cesiumViewer.zoomTo(dataSource);
             });
             break;
-        case 8:
+        case 8: //展示云图
             var curlayer = ilayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
                 url : url,
-                rectangle : Cesium.Rectangle.fromDegrees(94.0107, -8.81, 147.105, 29.332)
+                // rectangle : Cesium.Rectangle.fromDegrees(94.0107, -8.81, 147.105, 29.332)
+                rectangle : Cesium.Rectangle.fromDegrees(...other)
             }));
             layer = {layer: curlayer, id: id};
             break;
+        case 9: //热力图数据
+            Cesium.Resource.fetch({url: url}).then(response => {
+                const bbox = other;
+                var data = JSON.parse(response).feeds.map(({ gps_lon, gps_lat, s_d0 }) => {
+                    return {
+                        x: gps_lon,
+                        y: gps_lat,
+                        value: s_d0,
+                    }
+                });
+                const getHeat = require('cesiumjs-heat').default;
+                const CesiumHeat = getHeat(Cesium);
+                // 创建热力图
+                LayerManager.heat = new CesiumHeat(
+                    cesiumViewer,
+                    data,
+                    bbox
+                );
+                cesiumViewer.camera.flyTo({
+                    destination: Cesium.Rectangle.fromDegrees(...bbox),
+                    duration: 0.1
+                })
+            });
+            break;            
         default://ArcGisMapServerImageryProvider
             var curlayer = ilayers.addImageryProvider(new Cesium.ArcGisMapServerImageryProvider({
                 proxy : new Cesium.DefaultProxy(proxyUrl),
@@ -169,6 +192,5 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
 
 export {
     loadServerTypeMap,
-    deleteServerTypeMap,
-    isLayerDataSource
+    deleteServerTypeMap    
 }
