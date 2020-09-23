@@ -9,7 +9,6 @@
 .panel {
     display: block;
     position: absolute;
-    top: 100px;
     right: 65px;
     width: 300px;
     background: rgba(42, 42, 42, 0.8);

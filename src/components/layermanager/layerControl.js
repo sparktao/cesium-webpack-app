@@ -47,11 +47,15 @@ function deleteServerTypeMap(cesiumViewer, layerDatas, id){
     @ proxyUrl 代理请求url
     @ tilingScheme 地图坐标系,WebMercatorTilingScheme(摩卡托投影坐标系3857);GeographicTilingScheme(世界地理坐标系4326)
     */
-function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,IsWebMercatorTilingScheme, other){
+function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,IsWebMercatorTilingScheme, layerIndex, other){
     var ilayers = cesiumViewer.imageryLayers;
     var layer = null;
     switch (servertype) {
         case 0://WebMapTileServiceImageryProvider 天地图
+            var m_tilingScheme = new Cesium.GeographicTilingScheme();
+            if(IsWebMercatorTilingScheme){
+                m_tilingScheme = new Cesium.WebMercatorTilingScheme();
+            }
             var curlayer = ilayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({   //调用影响中文服务
                 url: url,//url地址
                 layer: layerid,	//WMTS请求的层名称
@@ -61,7 +65,7 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
                 subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'], //天地图8个服务器
                 minimumLevel: 0,//最小层级
                 maximumLevel: 18,//最大层级
-            }));
+            }), layerIndex);
             layer = {layer: curlayer, id: id};
             break;
         case 1://OpenStreetMapImageryProvider
@@ -75,6 +79,18 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
         case 3://createTileMapServiceImageryProvider
             break;
         case 4://UrlTemplateImageryProvider
+            var m_tilingScheme = new Cesium.GeographicTilingScheme();
+            if(IsWebMercatorTilingScheme){
+                m_tilingScheme = new Cesium.WebMercatorTilingScheme();
+            }
+            var curlayer = ilayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                url: url,
+                layer: layerid,	//WMTS请求的层名称
+                subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
+                tilingScheme: m_tilingScheme,
+                maximumLevel: 10,
+            }), layerIndex);
+            layer = {layer: curlayer, id: id};
             break;
         case 5://WebMapServiceImageryProvider
             var m_tilingScheme = new Cesium.GeographicTilingScheme();

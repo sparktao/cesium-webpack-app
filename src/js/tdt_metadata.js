@@ -25,11 +25,14 @@ var TDT_CVA_W = "http://t{s}.tianditu.gov.cn/cva_w/wmts?service=wmts&request=Get
 var TDT_TER_C = "http://t{s}.tianditu.gov.cn/ter_c/wmts?service=wmts&request=GetTile&version=1.0.0" +
     "&LAYER=ter&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}" +
     "&style=default.jpg&tk=" + token;
+//在线天地图国界服务
+var TDT_GJ_W = "http://t{s}.tianditu.gov.cn/DataServer?T=ibo_w&x={x}&y={y}&l={z}&tk=" + token;
 
 export {
     TDT_IMG_W,
     TDT_VEC_W,
     TDT_CIA_W,
     TDT_CVA_W,
-    TDT_TER_C
+    TDT_TER_C,
+    TDT_GJ_W
 }
