@@ -4,7 +4,8 @@ import './layer-manager.css'
 import { Tree } from 'antd'
 import {
     loadServerTypeMap,
-    deleteServerTypeMap
+    deleteServerTypeMap,
+    isLayerDataSource
 } from './layerControl'
 import {CloseSquareOutlined} from '@ant-design/icons'
 import * as TDT from '../../js/tdt_metadata'
@@ -50,12 +51,29 @@ const treeData = [
         ]
     },
     {
-        title: '气象数据',
+        title: '业务标注数据',
         key: '0-1',
         children: [                
             {
+                title: '水位站',
+                key: 'river_points.kml',  // key值和layerurl的名称保持一致
+                layerurl: "./Assets/myApp/data/river_points.kml",
+                layerid: "NAD_SWZ",
+                layerIndex: 50,
+                IsWebMercatorTilingScheme:true,//是否创建摩卡托投影坐标系,默认是地理坐标系
+                type: 6,
+                checked: false,
+                other: ''
+            },
+        ]
+    },
+    {
+        title: '气象数据',
+        key: '0-3',
+        children: [                
+            {
                 title: '云图数据',
-                key: '0-1-1',
+                key: '0-3-1',
                 layerurl: "./Assets/myApp/Images/1.bmp",
                 layerid: "NAD_YTSJ",
                 layerIndex: 99,
@@ -75,7 +93,6 @@ export default function LayerManager(props) {
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
     const [layerManagerVisibility, SetLayerManagerVisibility] = useState(false);
-    const [layerDatas, setLayerDatas] = useState([]);
     const [layerTreeData, setLayerTreeData] = useState([]);
 
     const viewer = props.viewer;
@@ -85,16 +102,13 @@ export default function LayerManager(props) {
         initTreeData(treeData);
         setExpandedKeys(tempExpandedKeys);
         setCheckedKeys(tempCheckedKeys);
-        setLayerDatas(tempLayerDatas);
-
     },[])
 
-    var tempExpandedKeys = [], tempCheckedKeys = [], tempLayerDatas = [];
+    var tempExpandedKeys = [], tempCheckedKeys = [];
 
     // 初始化地图图层数据，填充图层数据
     const initTreeData = (tdata) => {
         tdata.map(la => {
-            console.log(la)
             // 判断layerurl属性不存在，即为文件夹
             if(!la.layerurl) {
                 tempExpandedKeys.push(la.key);
@@ -102,9 +116,8 @@ export default function LayerManager(props) {
             } else { //图层的情况下
                 if(la.checked) {
                     tempCheckedKeys.push(la.key);
-                    // 始化图层
-                    var curlayerData = loadServerTypeMap(viewer, la.key, la.type, la.layerurl, la.layerid, la.proxyUrl,la.IsWebMercatorTilingScheme,la.layerIndex, la.other);
-                    tempLayerDatas.push(curlayerData);
+                    // 初始加载图层
+                    loadServerTypeMap(viewer, la.key, la.type, la.layerurl, la.layerid, la.proxyUrl,la.IsWebMercatorTilingScheme,la.layerIndex,la.other);                    
                 }
             }
         })
@@ -130,37 +143,27 @@ export default function LayerManager(props) {
         if(e.checked) {
             // 如果是枝节点
             if(e.node.layerurl) {
-                var curlayerData = loadServerTypeMap(viewer, e.node.key, e.node.type, e.node.layerurl, e.node.layerid, e.node.proxyUrl,e.node.IsWebMercatorTilingScheme,e.node.layerIndex, e.node.other);
-                setLayerDatas([...layerDatas, curlayerData]);                
+                loadServerTypeMap(viewer, e.node.key, e.node.type, e.node.layerurl, e.node.layerid, e.node.proxyUrl,e.node.IsWebMercatorTilingScheme,e.node.layerIndex, e.node.other);             
             } 
             else { //如果是文件夹节点
-                let templayerD = layerDatas.slice();
-                // 然后添加
                 e.node.children.map(node => {
                     // 先全部清空图层
-                    deleteServerTypeMap(viewer, layerDatas, node.key);
-                    templayerD = templayerD.filter(v => v.id !== node.key);
-                    // 再逐个添加图层
-                    var curlayerData = 
-                        loadServerTypeMap(viewer, node.key, node.type, node.layerurl, node.layerid, node.proxyUrl, node.IsWebMercatorTilingScheme,node.layerIndex, node.other);
-                    templayerD.push(curlayerData);
+                    deleteServerTypeMap(viewer, node.key, isLayerDataSource(node.type));                                       
+                    // 再逐个添加图层 
+                    loadServerTypeMap(viewer, node.key, node.type, node.layerurl, node.layerid, node.proxyUrl, node.IsWebMercatorTilingScheme,node.layerIndex, node.other);
                 });
-                setLayerDatas(templayerD);
             }            
         }
         else if(e.checked === false) {
             // 如果是枝节点
             if(e.node.layerurl) {
-                deleteServerTypeMap(viewer, layerDatas, e.node.key);
-                setLayerDatas(layerDatas.filter(v => v.id !== e.node.key));
+                deleteServerTypeMap(viewer, e.node.key, isLayerDataSource(e.node.type));              
             }
             else {
-                let templayerD = layerDatas.slice();
+                // 删除树节点下面的所有子节点图层
                 e.node.children.map(node => {
-                    deleteServerTypeMap(viewer, layerDatas, node.key);
-                    templayerD = templayerD.filter(v => v.id !== node.key);
+                    deleteServerTypeMap(viewer, node.key, isLayerDataSource(e.node.type));
                 });
-                setLayerDatas(templayerD);
             }
         }
     };

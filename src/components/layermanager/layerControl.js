@@ -1,39 +1,42 @@
 import * as Cesium from 'cesium/Cesium'
 
+// 记录所有图层数据
+let LayerManager = {
+    layer3DList: []
+};
+
+function isLayerDataSource(type) {
+    if(type === 6) {
+        return true;
+    }
+    return false;
+}
+
 /**
  * 删除指定ID的图层
  */
-function deleteServerTypeMap(cesiumViewer, layerDatas, id){
-    var layers = cesiumViewer.scene.imageryLayers;
-    for(var i=0; i<layerDatas.length && layerDatas.length > 0; i++){
-        if(layerDatas[i].id === id){
-            layers.remove(layerDatas[i].layer);
+function deleteServerTypeMap(cesiumViewer, id, isDataSource=false){
+    if(!isDataSource) {
+        var layers = cesiumViewer.scene.imageryLayers;
+        var layerDatas = LayerManager.layer3DList;
+        for(var i=0; i<layerDatas.length && layerDatas.length > 0; i++){
+            if(layerDatas[i].id === id){
+                layers.remove(layerDatas[i].layer);
+                LayerManager.layer3DList = layerDatas.filter(l => l.id !== id);
+            }
         }
-    }    
-
-    // switch(typeof(id))
-    // {
-    //     case "number":            
-    //         for(var i=0;i<layerDatas.length && layerDatas.length > 0;i++){
-    //             if(cesium.layer3DList[i].id == id){
-    //                 layers.remove(cesium.layer3DList[i].layer);
-    //             }
-    //         }            
-    //         break;
-    //     case "string":
-    //         var len = cesium.cesiumViewer.dataSources.length;
-    //         if(len>0){
-    //             for(var i=0;i<len;i++){
-    //                 var dataSource = cesium.cesiumViewer.dataSources.get(i);
-    //                 if(dataSource._name && dataSource._name == id){
-    //                     cesiumViewer.dataSources.remove(dataSource);
-    //                 }
-    //             }
-    //         }
-    //         break;
-    //     case "undefined":
-    //         break;
-    // }
+    }
+    else {
+        var len = cesiumViewer.dataSources.length;
+        if(len > 0){
+            for(var i=0; i<len; i++){
+                var dataSource = cesiumViewer.dataSources.get(i);
+                if(dataSource._name && dataSource._name === id){
+                    cesiumViewer.dataSources.remove(dataSource);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -62,6 +65,7 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
                 style: "default",//WMTS请求的样式名称
                 format: "tiles",//MIME类型，用于从服务器检索图像
                 tileMatrixSetID: "GoogleMapsCompatible",//	用于WMTS请求的TileMatrixSet的标识符
+                tilingScheme: m_tilingScheme,
                 subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'], //天地图8个服务器
                 minimumLevel: 0,//最小层级
                 maximumLevel: 18,//最大层级
@@ -114,13 +118,16 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
             layer = {layer:curlayer,id:id};
             break;
         case 6://kml,kmz
-            var options = {
-                camera : cesium.cesiumViewer.scene.camera,
-                canvas : cesium.cesiumViewer.scene.canvas
+            // 导入KML数据，并添加到地图数据源中
+            var kmlOptions = {
+                camera : cesiumViewer.scene.camera,
+                canvas : cesiumViewer.scene.canvas,
+                clampToGround : true  //使地面几何图元（如多边形和椭圆）符合地形
             };
-            cesium.cesiumViewer.dataSources.add(Cesium.KmlDataSource.load(url, options)).then(function(dataSource){
-                cesium.cesiumViewer.camera.flyHome();
+            cesiumViewer.dataSources.add(Cesium.KmlDataSource.load(url, kmlOptions)).then(function(dataSource){
+                // cesiumViewer.camera.flyHome();
             });
+
             break;
         case 7://geoJson
             /*var options = {
@@ -154,11 +161,14 @@ function loadServerTypeMap(cesiumViewer, id, servertype, url, layerid, proxyUrl,
             layer = {layer:curlayer,id:id};
             break;
     }   
-    return layer; 
+    if(layer) {
+        LayerManager.layer3DList.push(layer);
+    }
 }
 
 
 export {
     loadServerTypeMap,
-    deleteServerTypeMap
+    deleteServerTypeMap,
+    isLayerDataSource
 }
