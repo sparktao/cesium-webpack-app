@@ -31,6 +31,7 @@
   "dependencies": {
     "@types/cesium": "^1.67.12",
     "antd": "^4.6.5",
-    "cesium-tdt": "^1.1.0"
+    "cesium-tdt": "^1.1.0",
+    "cesiumjs-heat": "^1.0.2"
   }
 }
