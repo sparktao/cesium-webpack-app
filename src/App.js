@@ -1,13 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import * as Cesium from 'cesium/Cesium';
-// var Cesium = require('cesium/Cesium')
 import './App.css'
-// import * as widget from 'cesium/Widgets/widgets.css'
-require('cesium/Widgets/widgets.css')
 import Img from './Assets/myApp/Images/1.bmp'
+import Img1 from './Assets/myApp/Images/waterNormals.jpg'
 import Toolbar from './components/Toolbar'
 import 'antd/dist/antd.css'
-
 
 function App() {
     const [mapViewer, SetMapViewer] = useState();
@@ -22,10 +18,20 @@ function App() {
 
         // cesium 初始化
         var viewer = new Cesium.Viewer('cesiumContainer', {
+            animation: false,
+            timeline: false,
+            geocoder: false,
+            homeButton: false,
+            navigationHelpButton: false,
+            baseLayerPicker: false,
+            fullscreenButton: false,
             shouldAnimate: true,
-            selectionIndicator: true,
-            //Hide the base layer picker
-            baseLayerPicker : false,
+            infoBox: false,
+            selectionIndicator: false,
+            sceneModePicker: false,
+            shadows: false,
+            skyAtmosphere: false,
+            terrainProvider: Cesium.createWorldTerrain(),
         });
 
         // 抗锯齿
@@ -41,6 +47,27 @@ function App() {
             Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
         )
 
+         // 叠加地形服务
+        // var terrainUrls = new Array()
+        // var token = 'ebf64362215c081f8317203220f133eb';
+        // // 服务域名
+        // var tdtUrl = 'http://t{s}.tianditu.gov.cn/'
+        // // 服务负载子域
+        // var subdomains = ['0', '1', '2', '3', '4', '5', '6', '7']
+        // for (var i = 0; i < subdomains.length; i++) {
+        //     var url =
+        //     tdtUrl.replace('{s}', subdomains[i]) +
+        //     'DataServer?T=elv_c&tk=' +
+        //     token
+        //     terrainUrls.push(url)
+        // }
+    
+        // var provider = new Cesium.GeoTerrainProvider({
+        //     urls: terrainUrls,
+        // })
+    
+        // viewer.terrainProvider = provider
+
         // 将三维球定位到中国
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(103.84, 31.15, 17850000), //中国区域
@@ -54,35 +81,7 @@ function App() {
             },
         });
 
-        // const bbox = [120.106188593, 21.9705713974, 121.951243931, 25.2954588893]
-        // viewer.camera.flyTo({
-        //     destination: Cesium.Rectangle.fromDegrees(...bbox),
-        //     duration: 0.1
-        // })
-
-        // Cesium.Resource.fetch({
-        //     url:'./Assets/myApp/data/data.json' //所需的面json数据，这里是通过cesium的异步加载方法
-        // }).then(response => {
-        //     var data = JSON.parse(response).feeds.map(({ gps_lon, gps_lat, s_d0 }) => {
-        //         return {
-        //             x: gps_lon,
-        //             y: gps_lat,
-        //             value: s_d0,
-        //         }
-        //     });
-        //     const getHeat = require('cesiumjs-heat').default
-        //     const CesiumHeat = getHeat(Cesium)
-        //     const heat = new CesiumHeat(
-        //         viewer,
-        //         data,
-        //         bbox
-        //     )
-        // });
-
-                
-
-        // destory | 销毁
-        // setTimeout(()=>heat.destory(),10*1000)
+        
 
         SetMapViewer(viewer);
     }

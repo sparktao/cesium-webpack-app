@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import * as Cesium from 'cesium/Cesium'
 import './Toolbar.css'
 import LayerManager from './layermanager/layer-manager'
+import InnudateAnalysis from './inundate-analysis/inundate-analysis';
 
 export default function Toolbar(props) {
     const viewer = props.viewer;    
@@ -23,6 +23,7 @@ export default function Toolbar(props) {
                 <svg className="cesium-svgPath-svg" width="28" height="28" viewBox="0 0 28 28"><path d="M14,4l-10,8.75h20l-4.25-3.7188v-4.6562h-2.812v2.1875l-2.938-2.5625zm-7.0938,9.906v10.094h14.094v-10.094h-14.094zm2.1876,2.313h3.3122v4.25h-3.3122v-4.25zm5.8442,1.281h3.406v6.438h-3.406v-6.438z"></path></svg>
             </button>
             <LayerManager viewer={viewer}></LayerManager>
+            <InnudateAnalysis viewer={viewer}></InnudateAnalysis>
         </div>
     );
 }

@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import * as Cesium from 'cesium/Cesium'
 import './layer-manager.css'
 import { Tree } from 'antd'
 import {

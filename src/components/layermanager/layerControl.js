@@ -1,4 +1,3 @@
-import * as Cesium from 'cesium/Cesium'
 import getCesiumHeat from 'cesiumjs-heat'
 
 // 记录所有图层数据

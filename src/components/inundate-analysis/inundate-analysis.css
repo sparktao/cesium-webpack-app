@@ -1,0 +1,25 @@
+.panel-body.inundate-panel {
+    color: white;
+    height: 250px;
+}
+
+.panel-body.inundate-panel .icon{
+    display: flex;
+    flex-direction: column;
+    cursor: hand;
+}
+
+.analysisPanel{
+    position: absolute;
+    top: 120px;
+    right: 65px;
+    color: white;
+    width: 300px;
+    padding: 5px;
+}
+
+.analysisPanel .header {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 8px;
+}

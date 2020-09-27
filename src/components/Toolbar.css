@@ -33,6 +33,7 @@
     flex-direction: row;
     justify-content: space-between;
     padding: 4px;
+    border-bottom: 1px solid #DCDFE6;
 }
 
 .panel .panel-body .ant-tree {

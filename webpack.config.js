@@ -5,8 +5,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopywebpackPlugin = require('copy-webpack-plugin');
 
 // The path to the CesiumJS source code
-const cesiumSource = 'node_modules/cesium/Source';
-const cesiumWorkers = '../Build/Cesium/Workers';
+// const cesiumSource = 'node_modules/cesium/Source';
+// const cesiumWorkers = '../Build/Cesium/Workers';
+const cesiumSource = './public/static/Cesium';
+const cesiumWorkers = '/Workers';
+
 
 
 module.exports = {
@@ -36,7 +39,8 @@ module.exports = {
     },
     // development server options
     devServer: {
-        contentBase: path.join(__dirname, "dist")
+        contentBase: path.join(__dirname, "dist"),
+        port: 8081
     },
     module: {
         rules: [
@@ -45,7 +49,7 @@ module.exports = {
                 exclude: /node_modules/, 
                 loader: 'babel-loader',
                 options: {
-                    plugins: [],
+                    plugins: ['@babel/plugin-proposal-class-properties'],
                     presets: [
                         [
                             '@babel/preset-env',
@@ -63,11 +67,11 @@ module.exports = {
                 use: [ 'style-loader', 'css-loader' ]
             }, 
             {
-                test: /\.(png|gif|jpg|jpeg|svg|xml|json)$/,
+                test: /\.(png|gif|svg|xml|json)$/,
                 use: [ 'url-loader' ]
             }, 
             {
-                test: /\.(bmp)$/,
+                test: /\.(bmp|jpg|jpeg)$/,
                 loader: 'file-loader',
                 options: {
                     esModule: false,
@@ -81,14 +85,15 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: 'src/index.html'
+            template: './public/index.html'
         }),
          // Copy Cesium Assets, Widgets, and Workers to a static directory
          new CopywebpackPlugin({ 
             patterns: [
-                { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' },
-                { from: path.join(cesiumSource, 'Assets'), to: 'Assets' },
-                { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' },
+                { from: cesiumSource, to: 'static/Cesium' },
+                // { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' },
+                // { from: path.join(cesiumSource, 'Assets'), to: 'Assets' },
+                // { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' },
                 { from: 'src/Assets/myApp/data', to: 'Assets/myApp/data' },
             ]
         }),

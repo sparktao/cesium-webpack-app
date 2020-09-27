@@ -12,10 +12,10 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.11.6",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.11.5",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
-    "cesium": "^1.73.0",
     "copy-webpack-plugin": "^6.1.1",
     "css-loader": "^4.3.0",
     "file-loader": "^6.1.0",
@@ -32,6 +32,8 @@
     "@types/cesium": "^1.67.12",
     "antd": "^4.6.5",
     "cesium-tdt": "^1.1.0",
-    "cesiumjs-heat": "^1.0.2"
+    "cesiumjs-heat": "^1.0.2",
+    "file-saver": "^2.0.2",
+    "jquery": "^3.5.1"
   }
 }
