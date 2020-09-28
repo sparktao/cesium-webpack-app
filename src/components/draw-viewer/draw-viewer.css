@@ -1,0 +1,11 @@
+.panel-body.draw-viewer-panel {
+    color: white;
+    height: 250px;
+}
+
+.panel-body.draw-viewer-panel .icon{
+    display: flex;
+    flex-direction: column;
+    cursor: hand;
+    align-items: center;
+}

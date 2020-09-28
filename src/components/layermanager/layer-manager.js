@@ -107,7 +107,6 @@ export default function LayerManager(props) {
     const [checkedKeys, setCheckedKeys] = useState([]);
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
-    const [layerManagerVisibility, SetLayerManagerVisibility] = useState(false);
     const [layerTreeData, setLayerTreeData] = useState([]);
 
     const viewer = props.viewer;
@@ -118,6 +117,10 @@ export default function LayerManager(props) {
         setExpandedKeys(tempExpandedKeys);
         setCheckedKeys(tempCheckedKeys);
     },[])
+
+    useEffect(()=>{
+        
+    },[props.show])
 
     var tempExpandedKeys = [], tempCheckedKeys = [];
 
@@ -188,43 +191,30 @@ export default function LayerManager(props) {
       setSelectedKeys(selectedKeys);
     };
 
-    const toggleDownLayerManager = () => {
-        SetLayerManagerVisibility(!layerManagerVisibility);
-    }
-
-    const closeLayerManager = () => {
-        SetLayerManagerVisibility(false);
-    }
-
     return (
-        <>
-            <button className="cesium-toolbar-button cesium-button" onClick={toggleDownLayerManager}>
-                <svg t="1600757667604" className="cesium-svgPath-svg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7282" width="32" height="32"><path d="M942.933 311.467l-384-192c-25.6-17.067-55.466-17.067-81.066 0l-384 192c0 4.266-4.267 8.533-8.534 8.533-4.266 17.067 0 34.133 12.8 38.4l136.534 68.267-115.2 59.733c-12.8 8.533-21.334 21.333-21.334 34.133 0 12.8 8.534 29.867 21.334 34.134l98.133 51.2-98.133 51.2c-12.8 8.533-21.334 21.333-21.334 34.133 0 12.8 8.534 29.867 21.334 34.133l358.4 179.2c12.8 8.534 25.6 12.8 38.4 12.8 12.8 0 29.866-4.266 42.666-12.8l358.4-179.2c12.8-8.533 21.334-21.333 21.334-34.133 0-12.8-8.534-29.867-21.334-34.133l-98.133-51.2 98.133-51.2c12.8-8.534 21.334-21.334 21.334-34.134s-8.534-29.866-21.334-34.133L806.4 426.667 942.933 358.4c4.267-4.267 8.534-4.267 8.534-8.533 4.266-17.067 0-34.134-8.534-38.4zM861.867 691.2L533.333 857.6c-8.533 4.267-17.066 4.267-25.6 0L179.2 691.2l106.667-55.467 196.266 98.134c12.8 8.533 25.6 12.8 38.4 12.8 12.8 0 29.867-4.267 42.667-12.8l196.267-98.134 102.4 55.467z m0-170.667L755.2 576l-64 29.867-162.133 81.066c-8.534 4.267-17.067 4.267-25.6 0l-162.134-81.066-64-29.867-106.666-55.467 128-64L482.133 550.4c25.6 17.067 55.467 17.067 81.067 0l183.467-93.867 115.2 64z" p-id="7283"></path></svg>
-            </button>
-            <div className={layerManagerVisibility ? 'panel' : 'panel panel-hidden'}>
-                <div className="panel-heading">
-                    <h4 className="panel-title">
-                    图层控制
-                    <span>
-                        <CloseSquareOutlined onClick={closeLayerManager} />
-                    </span>
-                    </h4>
-                </div>
-                <div className="panel-body">
-                    <Tree
-                        checkable
-                        onExpand={onExpand}
-                        expandedKeys={expandedKeys}
-                        autoExpandParent={autoExpandParent}
-                        onCheck={onCheck}
-                        checkedKeys={checkedKeys}
-                        onSelect={onSelect}
-                        selectedKeys={selectedKeys}
-                        treeData={layerTreeData}
-                        />
-                </div>
+        <div className={props.show ? 'panel' : 'panel panel-hidden'}>
+            <div className="panel-heading">
+                <h4 className="panel-title">
+                图层控制
+                <span>
+                    <CloseSquareOutlined onClick={props.closeMenu} />
+                </span>
+                </h4>
             </div>
-        </>
+            <div className="panel-body">
+                <Tree
+                    checkable
+                    onExpand={onExpand}
+                    expandedKeys={expandedKeys}
+                    autoExpandParent={autoExpandParent}
+                    onCheck={onCheck}
+                    checkedKeys={checkedKeys}
+                    onSelect={onSelect}
+                    selectedKeys={selectedKeys}
+                    treeData={layerTreeData}
+                    />
+            </div>
+        </div>
     )
 
 }
