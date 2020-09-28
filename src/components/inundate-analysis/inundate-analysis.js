@@ -8,10 +8,34 @@ import {CesiumPolygon} from '../shared/Graphic'
 import GraphicManager from '../shared/GraphicManager'
 
 
+var ia_graphicManager = null;
+
 export default function InnudateAnalysis(props) {
     const [panelVisibility, SetPanelVisibility] = useState(false);
-    const [waterShader, SetWaterShader] = useState(null);
+    const [extraPanelVisibility, SetExtraPanelVisibility] = useState(false);
+    const [waterShader, SetWaterShader] = useState(null);    
     const viewer = props.viewer;
+    ia_graphicManager = new GraphicManager(viewer);
+    ia_graphicManager.floodArea = {
+        id: undefined,
+        pts: []
+    };
+    ia_graphicManager.sa = null;
+    
+    useEffect(()=>{
+        document.addEventListener("addEvent", function(e) {
+            ia_graphicManager.floodArea = {id: e.detail.gvid, pts: []};            
+        });
+        document.addEventListener("stopEdit", function() {
+            // 设置为地形影响
+            // viewer.scene.globe.depthTestAgainstTerrain = true;
+            console.log(ia_graphicManager.floodArea)
+            ia_graphicManager.floodArea = {
+                id: ia_graphicManager.floodArea.id, 
+                pts: ia_graphicManager.get(ia_graphicManager.floodArea.id).coordinates()[0]
+            };
+        });
+    },[]);
     
     const toggleDownPanelVisibility = () => {
         SetPanelVisibility(!panelVisibility);
@@ -20,34 +44,58 @@ export default function InnudateAnalysis(props) {
     const closePanel = () => {
         SetPanelVisibility(false);
     }
-    let sa = null;
 
     const initAnalysis = () => {
-        sa = new SubmergenceAnalysis(viewer, true, 800, 320, 1, true, [108.8517,34.0359,108.9446,34.0302,108.9816,33.9885,108.8609,33.9866], 0.05);
+        viewer.camera.flyTo({
+            //scene.camera.setView({
+                // 摄像头的位置
+                destination: Cesium.Cartesian3.fromDegrees(108.9, 34, 5000.0),
+                orientation: {
+                    heading: Cesium.Math.toRadians(0.0),//默认朝北0度，顺时针方向，东是90度
+                    pitch: Cesium.Math.toRadians(-20),//默认朝下看-90,0为水平看，
+                    roll: Cesium.Math.toRadians(0)//默认0
+                }
+        });
+        viewer.skyAtmosphere = false
+        SetExtraPanelVisibility(true)
     }
 
-    const beginAnalysis = () => {
-        sa.start();
+    const beginAnalysis = (values) => {
+        console.log(values)        
+        var tempArray = [];
+        ia_graphicManager.floodArea.pts.forEach((pt) => {
+            tempArray = [...tempArray, pt[0], pt[1]];
+        });
+        ia_graphicManager.removeAll();
+        // 设置淹没区域多边形受地形影响
+        viewer.scene.globe.depthTestAgainstTerrain = true;
+        ia_graphicManager.sa = 
+            new SubmergenceAnalysis(viewer, true, values.maxHeight, values.minHeight, values.step, true, tempArray, values.speed);
+        ia_graphicManager.sa.start();
     }
 
-    
+    /**
+     * 开始绘制洪水范围，多边形方式
+     */ 
     const drawFloodArea = () => {
-        let graphicManager = new GraphicManager(viewer);
-
-        graphicManager.heightReference = 3;
+        // 设置多边形不受地形影响
+        viewer.scene.globe.depthTestAgainstTerrain = false;
+        ia_graphicManager.heightReference = 3;
         const option = CesiumPolygon.defaultStyle;
-        // option.outline = this.outline;
-        // option.outlineColor = Cesium.Color.fromCssColorString(
-        //     this.outlineColor
-        // );
-        // option.outlineWidth = 3;
-        // option.color = Cesium.Color.fromCssColorString(this.polygonColor);
-        graphicManager.material = Cesium.Color.fromCssColorString(
+        ia_graphicManager.material = Cesium.Color.fromCssColorString(
             '#67ADDF'
         );
-        graphicManager.style = option;
-        graphicManager.createPolygon();
-
+        ia_graphicManager.style = option;
+        ia_graphicManager.createPolygon();
+    }
+    /**
+     * 清除淹没效果
+     */
+    const clearFloodArea = () => {
+        ia_graphicManager.removeAll();
+        if(ia_graphicManager.sa !== null) {
+            ia_graphicManager.sa.remove();
+        }
     }
 
     function drawShape(position, drawMode) {
@@ -93,7 +141,11 @@ export default function InnudateAnalysis(props) {
 
     // 清除水面波浪效果
     const clearAll = () => {
-        waterShader.clearAll();
+        if(waterShader) {
+            waterShader.clearAll()
+        }
+
+        SetExtraPanelVisibility(false)
     }
   
 
@@ -139,55 +191,64 @@ export default function InnudateAnalysis(props) {
                         </Col>
                     </Row>
                 </div>
+                <div className={extraPanelVisibility ? 'extra-panel-body' : 'extra-panel-body panel-hidden'}>
+                    <Row gutter={24} className="header">
+                        <Col span={12}>
+                            <Button type="primary" onClick={drawFloodArea}>绘制淹没范围</Button>
+                        </Col>
+                        <Col span={12}>
+                            <Button type="primary" danger onClick={clearFloodArea}>清除淹没效果</Button>
+                        </Col>
+                    </Row>
+                    <Row gutter={24}>
+                        <Col span={24}>
+                            <Form                    
+                            name="basic"
+                            initialValues={{
+                                maxHeight: 800,
+                                minHeight: 320,
+                                step: 1,
+                                speed: 0.05
+                            }}
+                            onFinish={beginAnalysis}>
+                                <Row gutter={24}>
+                                    <Col span={12}>  
+                                        <Form.Item label="最大高度" name="maxHeight">
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item label="最小高度" name="minHeight">
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                </Row> 
+                                <Row gutter={24}>
+                                    <Col span={12}>    
+                                        <Form.Item label="上涨间隔" name="step">
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>  
+                                        <Form.Item label="淹没速度" name="speed">
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={24}>
+                                    <Col span={12}>
+                                        <Button type="primary" htmlType="submit">开始</Button>
+                                    </Col>
+                                    <Col span={12}>
+                                        {/* {graphicManager?.tip} */}
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Col>
+                    </Row>                    
+                </div>
             </div>
-            <div className="analysisPanel">
-                <Row gutter={24} className="header">
-                    <Col span={12}>
-                        <Button type="primary" onClick={drawFloodArea}>绘制淹没范围</Button>
-                    </Col>
-                    <Col span={12}>
-                        <Button type="primary" danger>清除淹没效果</Button>
-                    </Col>
-                </Row>
-                <Form                    
-                    name="basic"
-                    initialValues={{
-                        maxHeight: 800,
-                        minHeight: 320,
-                        step: 1,
-                        speed: 0.05
-                    }}>
-                        <Row gutter={24}>
-                            <Col span={12}>  
-                                <Form.Item label="最大高度" name="maxHeight">
-                                    <Input />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="最小高度" name="minHeight">
-                                    <Input />
-                                </Form.Item>
-                            </Col>
-                        </Row> 
-                        <Row gutter={24}>
-                            <Col span={12}>    
-                                <Form.Item label="上涨间隔" name="step">
-                                    <Input />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>  
-                                <Form.Item label="淹没速度" name="speed">
-                                    <Input />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={24}>
-                            <Col span={24}>
-                                <Button type="primary">开始</Button>
-                            </Col>
-                        </Row>
-                </Form>
-            </div>
+            
         
         </>
     );

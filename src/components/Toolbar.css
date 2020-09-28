@@ -18,8 +18,13 @@
     visibility: visible;
 }
 
+.panel .ant-form-item-label > label {
+    color: white;
+}
+
 .panel-hidden {
-    visibility: hidden;
+    display: none;
+    /* visibility: hidden; */
 }
 
 .panel .panel-heading {

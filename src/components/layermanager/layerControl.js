@@ -1,4 +1,6 @@
 import getCesiumHeat from 'cesiumjs-heat'
+const Cesium = window.Cesium;
+const defined = Cesium.defined;
 
 // 记录所有图层数据
 let LayerManager = {

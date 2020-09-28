@@ -1,3 +1,5 @@
+const Cesium = window.Cesium;
+const defined = Cesium.defined;
 /**
  * 淹没分析
  * 原理：沿河道下游方向连续绘制长条状的蓝色立方体（由长条状矩形polygon拉伸而来），并使用上文“淹没效果”不断抬升。
@@ -16,6 +18,9 @@ export default class SubmergenceAnalysis {
      * @param {*} speed 淹没速度
      */
     constructor(viewer, isTerrain = true, height_max, height_min, step, map_type,positionsArr,speed) {
+        if (viewer instanceof Cesium.Viewer === false) {
+            throw new Error('viewer不是一个有效的Cesium Viewer对象.')
+        }
         this.viewer = viewer
         this.isTerrain = isTerrain
         this.handler = null
@@ -31,7 +36,7 @@ export default class SubmergenceAnalysis {
         this.map_type = map_type
         this.polygon_degrees = positionsArr
         this.speed = speed
-        this._initViewStatus(this.viewer)
+        // this._initViewStatus(this.viewer)
         this._addDisListener()
     }
 

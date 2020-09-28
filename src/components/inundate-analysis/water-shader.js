@@ -1,6 +1,12 @@
-export default class WaterShader {
+const Cesium = window.Cesium;
+const defined = Cesium.defined;
+
+class WaterShader {
 
     constructor(viewer) {
+        if (viewer instanceof Cesium.Viewer === false) {
+            throw new Error('viewer不是一个有效的Cesium Viewer对象.')
+        }
         this.viewer = viewer;
         this.waterPrimitive = null;
     }
@@ -78,6 +84,6 @@ export default class WaterShader {
             });
         }        
     }
-
-
 }
+
+export default WaterShader

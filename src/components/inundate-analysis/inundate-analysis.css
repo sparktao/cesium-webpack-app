@@ -9,16 +9,14 @@
     cursor: hand;
 }
 
-.analysisPanel{
-    position: absolute;
-    top: 120px;
-    right: 65px;
+.extra-panel-body{
+    border-top: 1px solid #DCDFE6;
     color: white;
     width: 300px;
     padding: 5px;
 }
 
-.analysisPanel .header {
+.extra-panel-body .header {
     margin-left: 0px;
     margin-right: 0px;
     margin-bottom: 8px;
