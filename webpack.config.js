@@ -5,10 +5,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopywebpackPlugin = require('copy-webpack-plugin');
 
 // The path to the CesiumJS source code
-// const cesiumSource = 'node_modules/cesium/Source';
-// const cesiumWorkers = '../Build/Cesium/Workers';
-const cesiumSource = './public/static/Cesium';
-const cesiumWorkers = '/Workers';
+const cesiumSource = 'node_modules/cesium/Source';
+const cesiumWorkers = '../Build/Cesium/Workers';
+// const cesiumSource = './public/static/Cesium';
+// const cesiumWorkers = '/Workers';
 
 
 
@@ -40,7 +40,7 @@ module.exports = {
     // development server options
     devServer: {
         contentBase: path.join(__dirname, "dist"),
-        port: 8081
+        port: 5001
     },
     module: {
         rules: [
@@ -84,16 +84,21 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: './public/index.html'
+        new webpack.ProvidePlugin({            
+            Cesium: 'cesium/Cesium',
+            'window.Cesium': 'cesium/Cesium',
         }),
-         // Copy Cesium Assets, Widgets, and Workers to a static directory
+        new HtmlWebpackPlugin({
+            template: './public/index.html',
+            favicon: './public/favicon.ico'
+        }),
+         // Copy Cesium Assets, Widgets, and Workers to a static directory 拷贝Assets, Widgets, Workers到static文件夹
          new CopywebpackPlugin({ 
             patterns: [
-                { from: cesiumSource, to: 'static/Cesium' },
-                // { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' },
-                // { from: path.join(cesiumSource, 'Assets'), to: 'Assets' },
-                // { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' },
+                // { from: cesiumSource, to: 'static/Cesium' },
+                { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' },
+                { from: path.join(cesiumSource, 'Assets'), to: 'Assets' },
+                { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' },
                 { from: 'src/Assets/myApp/data', to: 'Assets/myApp/data' },
             ]
         }),

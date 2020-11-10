@@ -22,19 +22,29 @@ export default function InnudateAnalysis(props) {
     ia_graphicManager.sa = null;
     
     useEffect(()=>{
-        document.addEventListener("addEvent", function(e) {
-            ia_graphicManager.floodArea = {id: e.detail.gvid, pts: []};            
-        });
-        document.addEventListener("stopEdit", function() {
-            // 设置为地形影响
-            // viewer.scene.globe.depthTestAgainstTerrain = true;
-            console.log(ia_graphicManager.floodArea)
-            ia_graphicManager.floodArea = {
-                id: ia_graphicManager.floodArea.id, 
-                pts: ia_graphicManager.get(ia_graphicManager.floodArea.id).coordinates()[0]
-            };
-        });
+        document.addEventListener("addEvent", onAddEventHandler);
+        document.addEventListener("stopEdit", onStopEventHandler);
+        return ()=> {
+            try {
+                document.removeEventListener("addEvent", onAddEventHandler);
+                document.removeEventListener("stopEdit", onStopEventHandler);
+            }catch{}
+        }
     },[]);
+
+    function onAddEventHandler(e) {
+        ia_graphicManager.floodArea = {id: e.detail.gvid, pts: []};
+    }
+
+    function onStopEventHandler() {
+        // 设置为地形影响
+        // viewer.scene.globe.depthTestAgainstTerrain = true;
+        console.log(ia_graphicManager.floodArea)
+        ia_graphicManager.floodArea = {
+            id: ia_graphicManager.floodArea.id, 
+            pts: ia_graphicManager.get(ia_graphicManager.floodArea.id)?.coordinates()[0]
+        };
+    }
     
     const initAnalysis = () => {
         viewer.camera.flyTo({

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node_modules/.bin/webpack --config webpack.config.js",
-    "start": "node_modules/.bin/webpack-dev-server --config webpack.config.js --open",
+    "start:dev": "node_modules/.bin/webpack-dev-server --config webpack.config.js --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,6 +16,7 @@
     "@babel/preset-env": "^7.11.5",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
+    "cesium": "^1.74.0",
     "copy-webpack-plugin": "^6.1.1",
     "css-loader": "^4.3.0",
     "file-loader": "^6.1.0",
